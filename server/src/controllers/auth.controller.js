@@ -1,4 +1,8 @@
-import { signInService, signUpService } from '../services/auth.services.js';
+import {
+    signInService,
+    signInWithGoogleService,
+    signUpService,
+} from '../services/auth.services.js';
 
 export const signUpController = async (req, res) => {
     try {
@@ -33,5 +37,25 @@ export const signInController = async (req, res) => {
             });
     } catch (error) {
         return res.status(error.statusCode).json({ error: error.message });
+    }
+};
+
+export const signInWithGoogleController = async (req, res, next) => {
+    const { email, name, googlePhotoUrl } = req.body;
+
+    try {
+        const { token, userData } = await signInWithGoogleService(
+            email,
+            name,
+            googlePhotoUrl,
+        );
+
+        res.status(200)
+            .cookie('access_token', token, {
+                httpOnly: true,
+            })
+            .json(userData);
+    } catch (error) {
+        next(error);
     }
 };
